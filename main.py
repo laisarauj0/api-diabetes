@@ -19,7 +19,6 @@ class InputData(BaseModel):
     glicose: float = Field(..., ge=0, description="Nível de glicose no sangue")
     imc: float = Field(..., ge=0, description="Índice de Massa Corporal (IMC)")
     idade: int = Field(..., ge=0, description="Idade em anos")
-    threshold: float = Field(0.42, ge=0, le=1, description="Limiar de decisão")
 
 @app.get("/")
 def root():
@@ -28,17 +27,20 @@ def root():
 @app.post("/predict")
 def prever_diabetes(dados: InputData):
     try:
+        # Define o threshold fixo (valor de corte)
+        threshold = 0.42
+
         # Prepara a entrada no formato esperado pelo modelo
         entrada = np.array([[dados.gravidez, dados.glicose, 0, 0, 0, dados.imc, 0, dados.idade]])
 
         # Calcula a probabilidade
         prob = modelo.predict_proba(entrada)[:, 1][0]
-        resultado = 1 if prob >= dados.threshold else 0
+        resultado = 1 if prob >= threshold else 0
 
         return {
             "probabilidade": round(float(prob), 4),
-            "classe": resultado,
-            "threshold": dados.threshold
+            "classe": resultado
         }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
