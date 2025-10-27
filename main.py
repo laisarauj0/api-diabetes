@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import joblib
 import numpy as np
@@ -11,6 +12,15 @@ app = FastAPI(
     title="API de Previsão de Diabetes",
     description="API que utiliza um modelo de Machine Learning para prever diabetes",
     version="1.0.0"
+)
+
+# Middleware CORS (permite acesso do site/front-end)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # pode ser ["https://seusite.com"] se quiser restringir
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Define o esquema de entrada (validação automática)
